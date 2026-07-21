@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>社區電動車充電費率</title>
+<meta name="description" content="根據台電時間電價即時換算社區電動車充電站目前每度電費率" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <div class="topbar__mark">⚡ 社區充電站電價</div>
+    <div class="topbar__meta" id="clock">現在時間 --:--</div>
+  </header>
+
+  <section class="hero" aria-live="polite">
+    <div class="hero__badges" id="heroBadges"></div>
+    <div class="hero__price-row">
+      <span class="hero__price" id="heroPrice">--</span>
+      <span class="hero__unit">元 / 度</span>
+    </div>
+    <p class="hero__band-label" id="heroBandLabel"></p>
+    <p class="hero__band-time" id="heroBandTime"></p>
+    <div class="hero__breakdown" id="heroBreakdown"></div>
+    <div class="hero__countdown" id="heroCountdown"></div>
+  </section>
+
+  <section class="section">
+    <div class="section__head">
+      <p class="eyebrow">今日時段 · Today's Schedule</p>
+    </div>
+    <div class="toggles">
+      <div class="toggle-group" id="dayToggle">
+        <button type="button" data-value="weekday" aria-pressed="false">平日</button>
+        <button type="button" data-value="weekend" aria-pressed="false">週六・日</button>
+      </div>
+      <div class="toggle-group" id="seasonToggle">
+        <button type="button" data-value="summer" aria-pressed="false">夏月</button>
+        <button type="button" data-value="nonSummer" aria-pressed="false">非夏月</button>
+      </div>
+    </div>
+    <p class="preview-flag" id="previewFlag" hidden>目前顯示為預覽時段，非即時費率。</p>
+
+    <div class="strip-card">
+      <div class="strip" id="strip" role="img" aria-label="今日尖峰離峰時段分布"></div>
+      <div class="strip__ticks" id="stripTicks"></div>
+      <div class="strip__legend">
+        <span><i class="dot dot--peak"></i>尖峰</span>
+        <span><i class="dot dot--offpeak"></i>離峰</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <p class="eyebrow">完整費率表 · Full Rate Table</p>
+    <div class="table-scroll">
+      <table class="rates">
+        <caption>車主端電價表</caption>
+        <thead>
+          <tr>
+            <th scope="col">時段</th>
+            <th scope="col">台電電價</th>
+            <th scope="col">本社區收費</th>
+          </tr>
+        </thead>
+        <tbody id="ratesBody"></tbody>
+      </table>
+    </div>
+    <p class="table-footnote">每月度數超過 2,000 度部份：<strong>1.02 元/度</strong>（加收）</p>
+  </section>
+
+  <section class="notes">
+    <h2>儲值卡備註</h2>
+    <ul>
+      <li>完成安裝設定及驗收合格後，由社區服務中心辦理充電卡開卡登記，並完成儲值後始可充電。</li>
+      <li>充電卡每張新台幣 $200，最低儲值金額為新台幣 $1,000；餘額不足時請至管理中心櫃檯以現金儲值。</li>
+    </ul>
+    <p class="disclaimer">本頁費率為依社區公告之台電時間電價換算，僅供住戶參考；正式扣款金額以社區管理委員會公告及台電電價表為準，如有調整請洽管理中心。</p>
+  </section>
+
+  <footer class="site-footer">車主端電價表 · 資料依社區管理辦法整理</footer>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>
