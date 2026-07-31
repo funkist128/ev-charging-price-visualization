@@ -79,11 +79,27 @@
 
 ## 自動監看
 
-`.github/workflows/check-taipower-rates.yml` 每週一 09:00（台北時間）跑
-`scripts/check-taipower-rates.mjs`：從台電電價表頁面抓最新的《詳細電價表》PDF，
-解析簡易型二段式費率，與 `rates.js` 比對。數字不一致、抓不到 PDF、或版面變動導致解析
-失敗時，會開一張標記 `taipower-rates` 的 issue 並指派給 repo owner（GitHub 會寄
-通知信）。同一種 issue 在關閉前不會重複開單。也可到 Actions 頁面手動觸發。
+每週一 09:00（本機 launchd 排程）執行 `scripts/check-taipower-rates.mjs`：
+從台電電價表頁面抓最新的《詳細電價表》PDF，解析簡易型二段式費率，與 `rates.js` 比對。
 
-注意：GitHub 會停用「repo 連續 60 天沒有新 commit」的排程 workflow，屆時會寄信通知，
-到 Actions 頁面按 Enable 即可恢復。
+- 一致 → 靜默結束，只寫一行 log
+- 不一致 → macOS 通知 + 開一張標記 `taipower-rates` 的 GitHub issue（指派給自己，
+  GitHub 會寄通知信），issue 內含新舊費率對照表與 PDF 原始表格文字
+- 抓不到 PDF／版面改變導致解析失敗 → 同樣通知 + 開單，不會靜默失效
+
+同標題的 open issue 存在時不重複開單。
+
+| | |
+|---|---|
+| 安裝／更新排程 | `scripts/install-watcher.sh` |
+| 移除排程 | `scripts/install-watcher.sh --uninstall` |
+| 立即執行一次 | `launchctl kickstart -p gui/$UID/com.funkist.taipower-rate-check` |
+| 紀錄檔 | `~/Library/Logs/taipower-rate-check.log` |
+
+電腦在排程時間關機或睡眠的話，launchd 會在開機／喚醒後補跑一次。
+
+### 為什麼不用 GitHub Actions
+
+試過，行不通：台電網站的 WAF 對境外機房 IP 一律回 403，補上完整瀏覽器 header 也一樣
+（GitHub runner 在 Azure eastus，實測台電首頁、電價表頁、PDF 直連全部 403；
+經濟部能源署的鏡像則連不上）。從台灣的網路連才拿得到，所以監看只能跑在本機。
