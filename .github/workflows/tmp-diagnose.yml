@@ -7,20 +7,29 @@ jobs:
       - name: probe sources
         run: |
           UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-          probe() {
-            echo "--- $2"
-            curl -s -o /dev/null -w "  http=%{http_code} size=%{size_download} ip=%{remote_ip}\n" $1 "$2" || echo "  curl failed"
-          }
+          PAGE="https://www.taipower.com.tw/2289/2290/46940/"
+          W="  http=%{http_code} size=%{size_download} ip=%{remote_ip}\n"
+
+          echo "== runner 出口 IP"; curl -s https://api.ipify.org; echo
+
           echo "== 1. 只有 UA"
-          probe "-A '$UA'" "https://www.taipower.com.tw/2289/2290/46940/"
+          curl -s -o /dev/null -w "$W" -A "$UA" "$PAGE"
+
           echo "== 2. 完整瀏覽器 header"
-          FULL="-A '$UA' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: zh-TW,zh;q=0.9,en;q=0.8' -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-Mode: navigate' -H 'Sec-Fetch-Site: none' -H 'Upgrade-Insecure-Requests: 1'"
-          eval "curl -s -o /dev/null -w '  http=%{http_code} size=%{size_download}\n' $FULL 'https://www.taipower.com.tw/2289/2290/46940/'"
+          curl -s -o /dev/null -w "$W" -A "$UA" \
+            -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' \
+            -H 'Accept-Language: zh-TW,zh;q=0.9,en;q=0.8' \
+            -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-Mode: navigate' \
+            -H 'Sec-Fetch-Site: none' -H 'Upgrade-Insecure-Requests: 1' "$PAGE"
+
           echo "== 3. 台電 PDF 直連"
-          probe "-A '$UA' -L" "https://www.taipower.com.tw/media/xtofy2yw/%E8%A9%B3%E7%B4%B0%E9%9B%BB%E5%83%B9%E8%A1%A8.pdf?mediaDL=true"
-          echo "== 4. 能源署 電價揭露專區"
-          probe "-A '$UA' -L" "https://www3.moeaea.gov.tw/ele102/Content/Messagess/List01.aspx?MmmID=654246034110677254"
-          echo "== 5. 台電首頁"
-          probe "-A '$UA' -L" "https://www.taipower.com.tw/"
-          echo "== runner 出口 IP"
-          curl -s https://api.ipify.org; echo
+          curl -sL -o /dev/null -w "$W" -A "$UA" "https://www.taipower.com.tw/media/xtofy2yw/%E8%A9%B3%E7%B4%B0%E9%9B%BB%E5%83%B9%E8%A1%A8.pdf?mediaDL=true"
+
+          echo "== 4. 台電首頁"
+          curl -sL -o /dev/null -w "$W" -A "$UA" "https://www.taipower.com.tw/"
+
+          echo "== 5. 能源署 電價揭露專區"
+          curl -sL -o /dev/null -w "$W" -A "$UA" "https://www3.moeaea.gov.tw/ele102/Content/Messagess/List01.aspx?MmmID=654246034110677254"
+
+          echo "== 6. 錯誤頁內容片段（台電）"
+          curl -s -A "$UA" "$PAGE" | head -c 400; echo
