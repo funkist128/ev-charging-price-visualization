@@ -76,3 +76,14 @@
 
 調價時只要改 `rates.js` 裡的 `taipower`、`surcharges`、`source.effectiveLabel`，
 整站數字與計算式會自動更新。
+
+## 自動監看
+
+`.github/workflows/check-taipower-rates.yml` 每週一 09:00（台北時間）跑
+`scripts/check-taipower-rates.mjs`：從台電電價表頁面抓最新的《詳細電價表》PDF，
+解析簡易型二段式費率，與 `rates.js` 比對。數字不一致、抓不到 PDF、或版面變動導致解析
+失敗時，會開一張標記 `taipower-rates` 的 issue 並指派給 repo owner（GitHub 會寄
+通知信）。同一種 issue 在關閉前不會重複開單。也可到 Actions 頁面手動觸發。
+
+注意：GitHub 會停用「repo 連續 60 天沒有新 commit」的排程 workflow，屆時會寄信通知，
+到 Actions 頁面按 Enable 即可恢復。
