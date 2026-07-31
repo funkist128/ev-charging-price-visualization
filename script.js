@@ -1,19 +1,49 @@
 /* 車主端電價 — 依台電時間電價規則計算社區充電站目前費率
- * 社區收費 = 台電電價 + 1.02 + 0.5（各時段皆同，四筆範例已驗證）
+ *
+ * 車主端每度電費 = 台電時間電價 + 台電超額電費 + 社區充電管理費
+ *
+ * 所有數字都來自 rates.js（單一維護點），本檔只負責套公式與呈現。
+ * 費率出處與逐字引用見 RATES-SOURCE.md。
  */
+
+const DATA = window.RATE_DATA;
+
+const SURCHARGE_TOTAL = DATA.surcharges.reduce((sum, s) => sum + s.amount, 0);
+
+/** 兩位小數，避免 5.16 + 1.04 + 0.5 這類浮點誤差顯示成 6.699999… */
+function round2(n) {
+  return Math.round(n * 100) / 100;
+}
+
+/** 台電單價 → 該時段的完整費率物件 */
+function makeRate(taipower) {
+  return { taipower, community: round2(taipower + SURCHARGE_TOTAL) };
+}
 
 const RATES = {
   summer: {
-    peak: { taipower: 5.01, community: 6.53 },
-    offpeak: { taipower: 1.96, community: 3.48 },
+    peak: makeRate(DATA.taipower.summer.peak),
+    offpeak: makeRate(DATA.taipower.summer.offpeak),
   },
   nonSummer: {
-    peak: { taipower: 4.78, community: 6.3 },
-    offpeak: { taipower: 1.89, community: 3.41 },
+    peak: makeRate(DATA.taipower.nonSummer.peak),
+    offpeak: makeRate(DATA.taipower.nonSummer.offpeak),
   },
 };
 
-const OVER_2000_RATE = 1.02;
+/** 「5.16 + 1.04 + 0.50」— 不含結果的計算式 */
+function formulaText(taipower) {
+  return [taipower, ...DATA.surcharges.map((s) => s.amount)].map((n) => n.toFixed(2)).join(' + ');
+}
+
+/** 「台電 5.16 + 超額 1.04 + 管理費 0.50 = 6.70 元/度」 */
+function breakdownText(rate) {
+  const parts = [
+    `台電 ${rate.taipower.toFixed(2)}`,
+    ...DATA.surcharges.map((s) => `${s.short} ${s.amount.toFixed(2)}`),
+  ];
+  return `${parts.join(' + ')} = ${rate.community.toFixed(2)} 元/度`;
+}
 
 // Taiwan (Asia/Taipei) has no DST, fixed UTC+8 — shift the instant and read UTC fields.
 function getTaipeiNow() {
@@ -137,7 +167,7 @@ function renderHero(v) {
   bandLabelEl.textContent = bandLabel(current, summer, weekend);
   bandTimeEl.textContent = timeRangeLabel(current, weekend);
 
-  breakdownEl.textContent = `台電電價 ${current.taipower.toFixed(2)} + 1.02 + 0.5 = ${current.community.toFixed(2)} 元/度`;
+  breakdownEl.textContent = breakdownText(current);
 
   if (!isLive) {
     countdownEl.innerHTML = `此為預覽時段，非目前實際費率。`;
@@ -227,10 +257,32 @@ function renderTable(v) {
     tr.innerHTML = `
       <td><div>${row.label}</div><div class="time-sub">${row.time}</div></td>
       <td class="num">${row.taipower.toFixed(2)}</td>
-      <td class="num community">${row.community.toFixed(2)}</td>
+      <td class="num community">
+        ${row.community.toFixed(2)}
+        <div class="formula-sub">${formulaText(row.taipower)}</div>
+      </td>
     `;
     tbody.appendChild(tr);
   });
+}
+
+/** 公式說明、加收項目、資料來源 — 只依 rates.js，載入時渲染一次。 */
+function renderStaticNotes() {
+  document.getElementById('formulaNote').innerHTML =
+    `<strong>計算方式：</strong>台電時間電價 ${DATA.surcharges
+      .map((s) => `+ ${s.label} ${s.amount.toFixed(2)} 元`)
+      .join(' ')} = 車主端每度電費`;
+
+  const list = document.getElementById('surchargeList');
+  list.innerHTML = '';
+  DATA.surcharges.forEach((s) => {
+    const li = document.createElement('li');
+    li.innerHTML = `${s.label}：<strong>${s.amount.toFixed(2)} 元/度</strong>`;
+    list.appendChild(li);
+  });
+
+  document.getElementById('sourceNote').innerHTML =
+    `台電費率依 <a href="${DATA.source.url}" target="_blank" rel="noopener">${DATA.source.label}</a>，${DATA.source.effectiveLabel}。`;
 }
 
 function setupToggles() {
@@ -255,6 +307,7 @@ function setupToggles() {
 function init() {
   state = { seasonOverride: null, dayOverride: null };
   setupToggles();
+  renderStaticNotes();
   render();
   setInterval(render, 15000);
 }

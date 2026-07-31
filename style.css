@@ -408,6 +408,15 @@ table.rates td.community {
   font-weight: 600;
 }
 
+table.rates .formula-sub {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--ink-soft);
+  margin-top: 0.15rem;
+  white-space: nowrap;
+}
+
 table.rates tr[data-type="peak"] td.community { color: var(--peak); }
 table.rates tr[data-type="offpeak"] td.community { color: var(--offpeak); }
 
@@ -459,6 +468,28 @@ table.rates tbody tr:last-child td {
 
 .notes li {
   margin-bottom: 0.35rem;
+}
+
+.notes__lead {
+  margin: 0 0 0.5rem;
+}
+
+.notes__aside {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  margin: 0 0 1.4rem;
+  padding-left: 0.8rem;
+  border-left: 2px solid var(--rule);
+}
+
+.notes h2 + h2,
+.notes__aside + h2 {
+  margin-top: 0;
+}
+
+#sourceNote a {
+  text-decoration-color: var(--rule);
+  text-underline-offset: 2px;
 }
 
 .disclaimer {

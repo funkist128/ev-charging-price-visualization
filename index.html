@@ -74,21 +74,32 @@
         <tbody id="ratesBody"></tbody>
       </table>
     </div>
-    <p class="table-footnote">每月度數超過 2,000 度部份：<strong>1.02 元/度</strong>（加收）</p>
+    <p class="table-footnote" id="formulaNote"></p>
+    <p class="table-footnote" id="sourceNote"></p>
   </section>
 
   <section class="notes">
+    <h2>費用組成</h2>
+    <p class="notes__lead">每度電費 = 台電時間電價 + 下列加收項目：</p>
+    <ul id="surchargeList"></ul>
+    <p class="notes__aside">
+      台電的超額電費原本只針對每月總度數超過 2,000 度的部分加收，社區總表用電量必然超過門檻，
+      故一律逐度計入。台電另訂國定假日為「離峰日」全日離峰，本頁目前僅以週六、週日計算，
+      實際是否比照請洽管理中心。
+    </p>
+
     <h2>儲值卡備註</h2>
     <ul>
       <li>完成安裝設定及驗收合格後，由社區服務中心辦理充電卡開卡登記，並完成儲值後始可充電。</li>
       <li>充電卡每張新台幣 $200，最低儲值金額為新台幣 $1,000；餘額不足時請至管理中心櫃檯以現金儲值。</li>
     </ul>
-    <p class="disclaimer">本頁費率為依社區公告之台電時間電價換算，僅供住戶參考；正式扣款金額以社區管理委員會公告及台電電價表為準，如有調整請洽管理中心。</p>
+    <p class="disclaimer">本頁費率依台電現行「表燈（住商）簡易型時間電價・二段式」加計社區加收項目即時換算，僅供住戶參考；正式扣款金額以社區管理委員會公告及台電電價表為準，如有調整請洽管理中心。</p>
   </section>
 
   <footer class="site-footer">車主端電價表 · 資料依社區管理辦法整理</footer>
 
 </div>
+<script src="rates.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
